@@ -1,0 +1,7 @@
+# SBox Common dependencies
+# For schema validation and CLI tools
+
+jsonschema>=4.17.0
+pyyaml>=6.0
+# Optional: for better schema documentation generation
+# json-schema-for-humans>=0.45.0 

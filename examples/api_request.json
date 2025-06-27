@@ -1,0 +1,56 @@
+{
+  "trace_id": "b0f4d6a0-f309-44f4-900e-9df0bcb2a755",
+  "timestamp": "2025-06-27T10:30:00Z",
+  "action": "update_config",
+  "protocol_version": "1.0.0",
+  "config": {
+    "agent": {
+      "name": "home-rpi",
+      "version": "0.1.2",
+      "log_level": "debug"
+    },
+    "server": {
+      "port": 8080,
+      "host": "127.0.0.1",
+      "timeout": "30s"
+    },
+    "services": {
+      "sboxmgr": {
+        "enabled": true,
+        "command": ["sboxmgr", "update"],
+        "interval": "30m",
+        "timeout": "5m",
+        "stdout_capture": true,
+        "health_check": {
+          "enabled": true,
+          "interval": "1m",
+          "timeout": "10s"
+        }
+      }
+    },
+    "clients": {
+      "sing-box": {
+        "enabled": true,
+        "binary_path": "/usr/local/bin/sing-box",
+        "config_path": "/etc/sing-box/config.json"
+      }
+    },
+    "logging": {
+      "stdout_capture": true,
+      "aggregation": true,
+      "retention_days": 30,
+      "max_entries": 1000
+    },
+    "monitoring": {
+      "metrics_enabled": false,
+      "health_checks_enabled": true,
+      "alerting_enabled": false
+    },
+    "security": {
+      "allow_remote_api": false,
+      "api_token": "your-secure-token-here",
+      "allowed_hosts": ["127.0.0.1", "::1"],
+      "tls_enabled": false
+    }
+  }
+} 

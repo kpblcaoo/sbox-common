@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.subbox.dev/agent_config.schema.json",
+  "version": "1.0.0",
+  "$comment": "Schema version for internal tracking and tooling support",
+  "title": "Subbox Agent Configuration Schema",
+  "description": "Configuration schema for sboxagent daemon with comprehensive service management",
+  "type": "object",
+  "properties": {
+    "agent": {
+      "type": "object",
+      "description": "Agent basic configuration",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Agent name",
+          "default": "sboxagent"
+        },
+        "version": {
+          "type": "string",
+          "description": "Agent version",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?(\\+[a-zA-Z0-9.-]+)?$"
+        },
+        "log_level": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"],
+          "default": "info",
+          "description": "Logging level"
+        }
+      },
+      "required": ["name", "version"],
+      "additionalProperties": false
+    },
+    "server": {
+      "type": "object",
+      "description": "HTTP API server configuration",
+      "properties": {
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 8080,
+          "description": "HTTP server port"
+        },
+        "host": {
+          "type": "string",
+          "default": "127.0.0.1",
+          "description": "HTTP server host"
+        },
+        "timeout": {
+          "type": "string",
+          "pattern": "^\\d+[smh]$",
+          "default": "30s",
+          "description": "Request timeout"
+        }
+      },
+      "required": ["port", "host"],
+      "additionalProperties": false
+    },
+    "services": {
+      "type": "object",
+      "title": "Service Management",
+      "description": "Configuration for managed services and integrations",
+      "properties": {
+        "sboxmgr": {
+          "type": "object",
+          "description": "sboxmgr service configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable sboxmgr integration"
+            },
+            "command": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": ["sboxmgr", "update"],
+              "description": "sboxmgr command and arguments"
+            },
+            "interval": {
+              "type": "string",
+              "pattern": "^\\d+[smh]$",
+              "default": "30m",
+              "description": "Update interval"
+            },
+            "timeout": {
+              "type": "string",
+              "pattern": "^\\d+[smh]$",
+              "default": "5m",
+              "description": "Command timeout"
+            },
+            "stdout_capture": {
+              "type": "boolean",
+              "default": true,
+              "description": "Capture sboxmgr stdout"
+            },
+            "health_check": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "interval": {
+                  "type": "string",
+                  "pattern": "^\\d+[smh]$",
+                  "default": "1m"
+                },
+                "timeout": {
+                  "type": "string",
+                  "pattern": "^\\d+[smh]$",
+                  "default": "10s"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": ["enabled"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "clients": {
+      "type": "object",
+      "title": "VPN Client Management",
+      "description": "Configuration for various VPN client applications",
+      "properties": {
+        "sing-box": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "binary_path": {
+              "type": "string",
+              "default": "/usr/local/bin/sing-box"
+            },
+            "config_path": {
+              "type": "string",
+              "default": "/etc/sing-box/config.json"
+            }
+          },
+          "required": ["enabled"],
+          "additionalProperties": false
+        },
+        "xray": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "binary_path": {
+              "type": "string",
+              "default": "/usr/local/bin/xray"
+            },
+            "config_path": {
+              "type": "string",
+              "default": "/etc/xray/config.json"
+            }
+          },
+          "required": ["enabled"],
+          "additionalProperties": false
+        },
+        "clash": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "binary_path": {
+              "type": "string",
+              "default": "/usr/local/bin/clash"
+            },
+            "config_path": {
+              "type": "string",
+              "default": "/etc/clash/config.yaml"
+            }
+          },
+          "required": ["enabled"],
+          "additionalProperties": false
+        },
+        "hysteria": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "binary_path": {
+              "type": "string",
+              "default": "/usr/local/bin/hysteria"
+            },
+            "config_path": {
+              "type": "string",
+              "default": "/etc/hysteria/config.json"
+            }
+          },
+          "required": ["enabled"],
+          "additionalProperties": false
+        },
+        "mihomo": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "binary_path": {
+              "type": "string",
+              "default": "/usr/local/bin/mihomo"
+            },
+            "config_path": {
+              "type": "string",
+              "default": "/etc/mihomo/config.yaml"
+            }
+          },
+          "required": ["enabled"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "logging": {
+      "type": "object",
+      "title": "Logging Configuration",
+      "description": "Logging and output capture settings",
+      "properties": {
+        "stdout_capture": {
+          "type": "boolean",
+          "default": true,
+          "description": "Capture stdout from sboxcli"
+        },
+        "aggregation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable log aggregation"
+        },
+        "retention_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365,
+          "default": 30,
+          "description": "Log retention period in days"
+        },
+        "max_entries": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 100000,
+          "default": 1000,
+          "description": "Maximum log entries in memory"
+        }
+      },
+      "additionalProperties": false
+    },
+    "monitoring": {
+      "type": "object",
+      "title": "Monitoring and Health",
+      "description": "Monitoring, metrics and health check configuration",
+      "properties": {
+        "metrics_enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable Prometheus metrics"
+        },
+        "health_checks_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable health checks"
+        },
+        "alerting_enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable alerting"
+        }
+      },
+      "additionalProperties": false
+    },
+    "security": {
+      "type": "object",
+      "title": "Security Settings",
+      "description": "Security-related configuration and access controls",
+      "properties": {
+        "allow_remote_api": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow external access to API (not recommended for production)"
+        },
+        "api_token": {
+          "type": "string",
+          "description": "Optional authentication token for API access"
+        },
+        "allowed_hosts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["127.0.0.1", "::1"],
+          "description": "List of allowed host IPs for API access"
+        },
+        "tls_enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable TLS/HTTPS for API server"
+        },
+        "tls_cert_file": {
+          "type": "string",
+          "description": "Path to TLS certificate file"
+        },
+        "tls_key_file": {
+          "type": "string",
+          "description": "Path to TLS private key file"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["agent", "server"],
+  "additionalProperties": false
+} 
