@@ -1,0 +1,31 @@
+[project]
+name = "sbox-common"
+version = "0.1.0"
+description = "Common protocols and utilities for sboxagent/sboxmgr integration"
+authors = [
+    { name = "Mikhail Stepanov", email = "kpblcaoo@gmail.com" }
+]
+license = "Apache-2.0"
+requires-python = ">=3.8"
+dependencies = [
+    "jsonschema>=4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-mock",
+    "black",
+    "ruff",
+    "mypy",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src" 

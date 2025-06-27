@@ -1,0 +1,428 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Health Events Protocol",
+  "description": "Event protocol for health monitoring between sboxmgr and sboxagent",
+  "version": "1.0.0",
+  "type": "object",
+  "definitions": {
+    "EventBase": {
+      "type": "object",
+      "required": ["event_id", "timestamp", "source", "event_type"],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique event identifier"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Event timestamp in ISO 8601 format"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["sboxmgr", "sboxagent"],
+          "description": "Source system that generated the event"
+        },
+        "event_type": {
+          "type": "string",
+          "description": "Type of event"
+        },
+        "correlation_id": {
+          "type": "string",
+          "description": "Optional correlation ID for tracking related events"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Additional event metadata"
+        }
+      }
+    },
+    "HealthStatus": {
+      "type": "string",
+      "enum": ["healthy", "degraded", "unhealthy", "unknown"],
+      "description": "Health status level"
+    },
+    "ComponentHealth": {
+      "type": "object",
+      "required": ["component", "status"],
+      "properties": {
+        "component": {
+          "type": "string",
+          "description": "Component name"
+        },
+        "status": {
+          "$ref": "#/definitions/HealthStatus"
+        },
+        "message": {
+          "type": "string",
+          "description": "Optional status message"
+        },
+        "details": {
+          "type": "object",
+          "description": "Additional component details"
+        },
+        "last_check": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last health check timestamp"
+        }
+      }
+    },
+    "SystemMetrics": {
+      "type": "object",
+      "properties": {
+        "cpu_usage_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "CPU usage percentage"
+        },
+        "memory_usage_mb": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Memory usage in MB"
+        },
+        "disk_usage_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Disk usage percentage"
+        },
+        "network_rx_bytes": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Network received bytes"
+        },
+        "network_tx_bytes": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Network transmitted bytes"
+        },
+        "uptime_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "System uptime in seconds"
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "health.status_changed"
+            },
+            "data": {
+              "type": "object",
+              "required": ["component", "previous_status", "current_status"],
+              "properties": {
+                "component": {
+                  "type": "string",
+                  "description": "Component name"
+                },
+                "previous_status": {
+                  "$ref": "#/definitions/HealthStatus"
+                },
+                "current_status": {
+                  "$ref": "#/definitions/HealthStatus"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Status change message"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Status change timestamp"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "health.check_started"
+            },
+            "data": {
+              "type": "object",
+              "required": ["check_id", "components"],
+              "properties": {
+                "check_id": {
+                  "type": "string",
+                  "description": "Health check identifier"
+                },
+                "components": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Components to check"
+                },
+                "timeout_seconds": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 30,
+                  "description": "Health check timeout"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "health.check_completed"
+            },
+            "data": {
+              "type": "object",
+              "required": ["check_id", "overall_status", "components"],
+              "properties": {
+                "check_id": {
+                  "type": "string",
+                  "description": "Health check identifier"
+                },
+                "overall_status": {
+                  "$ref": "#/definitions/HealthStatus"
+                },
+                "components": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ComponentHealth"
+                  },
+                  "check_duration_ms": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Health check duration in milliseconds"
+                  },
+                  "errors": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Health check errors"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "health.metrics_updated"
+            },
+            "data": {
+              "type": "object",
+              "required": ["metrics"],
+              "properties": {
+                "metrics": {
+                  "$ref": "#/definitions/SystemMetrics"
+                },
+                "collection_interval_seconds": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Metrics collection interval"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "health.alert_triggered"
+            },
+            "data": {
+              "type": "object",
+              "required": ["alert_id", "severity", "message", "component"],
+              "properties": {
+                "alert_id": {
+                  "type": "string",
+                  "description": "Alert identifier"
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": ["info", "warning", "error", "critical"],
+                  "description": "Alert severity"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Alert message"
+                },
+                "component": {
+                  "type": "string",
+                  "description": "Component that triggered alert"
+                },
+                "threshold": {
+                  "type": "object",
+                  "description": "Threshold that was exceeded"
+                },
+                "current_value": {
+                  "type": "object",
+                  "description": "Current value that triggered alert"
+                },
+                "acknowledged": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether alert is acknowledged"
+                },
+                "acknowledged_by": {
+                  "type": "string",
+                  "description": "User who acknowledged alert"
+                },
+                "acknowledged_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Alert acknowledgment timestamp"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "health.alert_resolved"
+            },
+            "data": {
+              "type": "object",
+              "required": ["alert_id"],
+              "properties": {
+                "alert_id": {
+                  "type": "string",
+                  "description": "Alert identifier"
+                },
+                "resolution_message": {
+                  "type": "string",
+                  "description": "Alert resolution message"
+                },
+                "resolved_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Alert resolution timestamp"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "health.service_started"
+            },
+            "data": {
+              "type": "object",
+              "required": ["service_name", "pid"],
+              "properties": {
+                "service_name": {
+                  "type": "string",
+                  "description": "Service name"
+                },
+                "pid": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Process ID"
+                },
+                "version": {
+                  "type": "string",
+                  "description": "Service version"
+                },
+                "startup_time_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Service startup time in milliseconds"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "health.service_stopped"
+            },
+            "data": {
+              "type": "object",
+              "required": ["service_name"],
+              "properties": {
+                "service_name": {
+                  "type": "string",
+                  "description": "Service name"
+                },
+                "exit_code": {
+                  "type": "integer",
+                  "description": "Service exit code"
+                },
+                "exit_reason": {
+                  "type": "string",
+                  "description": "Service exit reason"
+                },
+                "uptime_seconds": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Service uptime in seconds"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 

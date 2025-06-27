@@ -2,13 +2,13 @@
 
 **Дата создания:** 2025-06-27  
 **Статус:** 🚀 **В РАЗРАБОТКЕ**  
-**Версия:** 1.1
+**Версия:** 1.2
 
 ## 🎯 ЦЕЛЬ
 
 Координировать параллельную разработку INTEGRATION-01: Foundation между тремя проектами:
 - **sboxmgr** - Security Framework + CLI Integration
-- **sboxagent** - Event Handler + Process Manager
+- **sboxagent** - Event Handler + Unix Socket Server
 - **sbox-common** - Event Protocols + Schemas
 
 ## 📊 ТЕКУЩИЙ СТАТУС
@@ -20,7 +20,7 @@
 
 ### Готовность проектов:
 - **sboxmgr:** 75% (CLI, plugin system, event system готовы)
-- **sboxagent:** 90% (MVP готов, нужен Event Handler)
+- **sboxagent:** 90% (MVP готов, нужен Unix Socket Server)
 - **sbox-common:** 60% (event protocols готовы, converters готовы)
 
 ## 🏗️ АРХИТЕКТУРА РАЗРАБОТКИ
@@ -33,7 +33,7 @@
 │  - Security Framework       │  - Event Handler             │
 │  - CLI Integration          │  - Process Manager           │
 │  - Event Sender             │  - Log Parser                │
-│  - IPC Client               │  - IPC Server                │
+│  - Unix Socket Client       │  - Unix Socket Server        │
 ├─────────────────────────────────────────────────────────────┤
 │                    sbox-common (Shared)                    │
 │  - Event Protocols          │  - API Schemas               │
@@ -56,14 +56,19 @@
 - [x] Создать event converters
 - [x] Добавить event validation
 
-#### Day 3-4: IPC Foundation (sboxagent)
-**Ответственный:** sboxagent  
+#### Day 3-4: Unix Socket Protocol (sbox-common + sboxagent)
+**Ответственный:** sbox-common + sboxagent  
 **Зависимости:** sbox-common event protocols
 
-- [ ] Создать `internal/ipc/server.go`
-- [ ] Создать `internal/ipc/client.go`
-- [ ] Создать `internal/ipc/protocol.go`
-- [ ] Добавить JSON message handling
+**sbox-common:**
+- [ ] Создать `protocols/socket/protocol_v1.schema.json`
+- [ ] Создать `protocols/socket/framed_json.py`
+- [ ] Добавить socket protocol validation
+
+**sboxagent:**
+- [ ] Создать `internal/socket/server.go`
+- [ ] Создать `internal/socket/protocol.go`
+- [ ] Добавить framed JSON handling
 - [ ] Добавить basic event processing
 
 #### Day 5-7: Security Framework (sboxmgr)
@@ -80,10 +85,10 @@
 
 #### Day 1-2: CLI Integration (sboxmgr)
 **Ответственный:** sboxmgr  
-**Зависимости:** sboxagent IPC
+**Зависимости:** sboxagent Unix Socket Server
 
 - [ ] Создать `src/sboxmgr/cli/commands/agent.py`
-- [ ] Создать `src/sboxmgr/cli/utils/ipc_client.py`
+- [ ] Создать `src/sboxmgr/cli/utils/socket_client.py`
 - [ ] Создать `src/sboxmgr/cli/utils/event_sender.py`
 - [ ] Добавить agent management commands
 - [ ] Добавить error handling
@@ -116,24 +121,24 @@
 - **18:00** - Integration testing
 
 ### Weekly Milestones:
-- **Week 1:** Foundation ready (event protocols, IPC, security framework)
+- **Week 1:** Foundation ready (event protocols, Unix socket protocol, security framework)
 - **Week 2:** Integration ready (CLI commands, event handler, config sync)
 
 ### Integration Testing:
 - **Day 3:** Test event protocols between projects
-- **Day 5:** Test IPC communication between sboxmgr and sboxagent
+- **Day 5:** Test Unix socket communication between sboxmgr and sboxagent
 - **Day 7:** Test end-to-end integration
 
 ## 🧪 ТЕСТИРОВАНИЕ
 
 ### Unit Tests:
-- **sbox-common:** Event protocol validation
+- **sbox-common:** Event protocol validation, socket protocol
 - **sboxmgr:** Security framework, CLI commands
-- **sboxagent:** IPC, event handler
+- **sboxagent:** Unix socket server, event handler
 
 ### Integration Tests:
 - **Event Flow:** sboxmgr → sbox-common → sboxagent
-- **IPC Flow:** sboxmgr CLI → sboxagent IPC
+- **Socket Flow:** sboxmgr CLI → sboxagent Unix Socket
 - **Config Flow:** sboxmgr → sbox-common → sboxagent
 
 ### End-to-End Tests:
@@ -145,12 +150,12 @@
 
 ### Week 1 Criteria:
 - [x] Event protocols работают между проектами
-- [ ] IPC communication работает между sboxmgr и sboxagent
+- [ ] Unix socket communication работает между sboxmgr и sboxagent
 - [ ] Security framework функционирует
 - [ ] Unit tests проходят
 
 ### Week 2 Criteria:
-- [ ] CLI команды управляют агентом через IPC
+- [ ] CLI команды управляют агентом через Unix socket
 - [ ] Event handler обрабатывает события
 - [ ] Configuration sync работает
 - [ ] Integration tests проходят
@@ -180,11 +185,11 @@
 1. ✅ Создать ветки для интеграции
 2. ✅ Обновить планы Stage 4
 3. ✅ Завершить event protocols в sbox-common
-4. 🔄 Начать IPC foundation в sboxagent
+4. 🔄 Начать Unix socket protocol в sbox-common + sboxagent
 
 ### This Week:
 1. ✅ Завершить event protocols
-2. 🔄 Начать IPC в sboxagent
+2. 🔄 Начать Unix socket protocol
 3. 🔄 Начать security framework в sboxmgr
 
 ### Next Week:
@@ -195,7 +200,7 @@
 ## 🔮 FUTURE PHASES (Optional)
 
 ### Phase 2: HTTP API (Optional)
-- **Когда:** После стабильной IPC интеграции
+- **Когда:** После стабильной Unix socket интеграции
 - **Зачем:** Remote management, external integrations
 - **Что:** HTTP REST API поверх существующего event system
 
@@ -207,4 +212,4 @@
 
 **Статус**: 🚀 **В РАЗРАБОТКЕ**  
 **Прогресс**: 25% (event protocols complete)  
-**Следующий шаг**: Начать IPC foundation в sboxagent 
+**Следующий шаг**: Начать Unix socket protocol в sbox-common + sboxagent 

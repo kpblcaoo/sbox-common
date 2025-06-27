@@ -1,0 +1,392 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Configuration Events Protocol",
+  "description": "Event protocol for configuration management between sboxmgr and sboxagent",
+  "version": "1.0.0",
+  "type": "object",
+  "definitions": {
+    "EventBase": {
+      "type": "object",
+      "required": ["event_id", "timestamp", "source", "event_type"],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique event identifier"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Event timestamp in ISO 8601 format"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["sboxmgr", "sboxagent"],
+          "description": "Source system that generated the event"
+        },
+        "event_type": {
+          "type": "string",
+          "description": "Type of event"
+        },
+        "correlation_id": {
+          "type": "string",
+          "description": "Optional correlation ID for tracking related events"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Additional event metadata"
+        }
+      }
+    },
+    "ConfigData": {
+      "type": "object",
+      "required": ["config_id", "name", "type", "content"],
+      "properties": {
+        "config_id": {
+          "type": "string",
+          "description": "Unique configuration identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable configuration name"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["sing-box", "clash", "v2ray", "custom"],
+          "description": "Configuration type"
+        },
+        "content": {
+          "type": "object",
+          "description": "Configuration content (format depends on type)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional configuration description"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional tags for categorization"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether configuration is enabled"
+        },
+        "active": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether configuration is currently active"
+        },
+        "subscription_id": {
+          "type": "string",
+          "description": "Associated subscription ID if applicable"
+        },
+        "version": {
+          "type": "string",
+          "description": "Configuration version"
+        },
+        "checksum": {
+          "type": "string",
+          "description": "Configuration content checksum"
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.created"
+            },
+            "data": {
+              "$ref": "#/definitions/ConfigData"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.updated"
+            },
+            "data": {
+              "$ref": "#/definitions/ConfigData"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.deleted"
+            },
+            "data": {
+              "type": "object",
+              "required": ["config_id"],
+              "properties": {
+                "config_id": {
+                  "type": "string",
+                  "description": "ID of deleted configuration"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.enabled"
+            },
+            "data": {
+              "type": "object",
+              "required": ["config_id"],
+              "properties": {
+                "config_id": {
+                  "type": "string",
+                  "description": "ID of enabled configuration"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.disabled"
+            },
+            "data": {
+              "type": "object",
+              "required": ["config_id"],
+              "properties": {
+                "config_id": {
+                  "type": "string",
+                  "description": "ID of disabled configuration"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.activated"
+            },
+            "data": {
+              "type": "object",
+              "required": ["config_id"],
+              "properties": {
+                "config_id": {
+                  "type": "string",
+                  "description": "ID of activated configuration"
+                },
+                "previous_config_id": {
+                  "type": "string",
+                  "description": "ID of previously active configuration"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.deactivated"
+            },
+            "data": {
+              "type": "object",
+              "required": ["config_id"],
+              "properties": {
+                "config_id": {
+                  "type": "string",
+                  "description": "ID of deactivated configuration"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.validation_started"
+            },
+            "data": {
+              "type": "object",
+              "required": ["config_id"],
+              "properties": {
+                "config_id": {
+                  "type": "string",
+                  "description": "ID of configuration being validated"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.validation_completed"
+            },
+            "data": {
+              "type": "object",
+              "required": ["config_id", "status"],
+              "properties": {
+                "config_id": {
+                  "type": "string",
+                  "description": "ID of validated configuration"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["valid", "invalid"],
+                  "description": "Validation status"
+                },
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Validation errors if status is invalid"
+                },
+                "warnings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Validation warnings"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.reload_requested"
+            },
+            "data": {
+              "type": "object",
+              "required": ["config_id"],
+              "properties": {
+                "config_id": {
+                  "type": "string",
+                  "description": "ID of configuration to reload"
+                },
+                "force": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether to force reload even if no changes"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "config.reload_completed"
+            },
+            "data": {
+              "type": "object",
+              "required": ["config_id", "status"],
+              "properties": {
+                "config_id": {
+                  "type": "string",
+                  "description": "ID of reloaded configuration"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["success", "failed"],
+                  "description": "Reload status"
+                },
+                "error": {
+                  "type": "string",
+                  "description": "Error message if status is failed"
+                },
+                "reload_time_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Time taken for reload in milliseconds"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 

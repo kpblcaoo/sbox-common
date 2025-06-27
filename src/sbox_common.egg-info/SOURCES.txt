@@ -1,0 +1,14 @@
+LICENSE
+pyproject.toml
+src/sbox_common/__init__.py
+src/sbox_common.egg-info/PKG-INFO
+src/sbox_common.egg-info/SOURCES.txt
+src/sbox_common.egg-info/dependency_links.txt
+src/sbox_common.egg-info/requires.txt
+src/sbox_common.egg-info/top_level.txt
+src/sbox_common/protocols/__init__.py
+src/sbox_common/protocols/converters.py
+src/sbox_common/protocols/socket/__init__.py
+src/sbox_common/protocols/socket/framed_json.py
+tests/test_event_protocols.py
+tests/test_socket_protocol.py
