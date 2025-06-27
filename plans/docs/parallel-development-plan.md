@@ -2,13 +2,13 @@
 
 **Дата создания:** 2025-06-27  
 **Статус:** 🚀 **В РАЗРАБОТКЕ**  
-**Версия:** 1.0
+**Версия:** 1.1
 
 ## 🎯 ЦЕЛЬ
 
 Координировать параллельную разработку INTEGRATION-01: Foundation между тремя проектами:
 - **sboxmgr** - Security Framework + CLI Integration
-- **sboxagent** - HTTP API + Event Handler
+- **sboxagent** - Event Handler + Process Manager
 - **sbox-common** - Event Protocols + Schemas
 
 ## 📊 ТЕКУЩИЙ СТАТУС
@@ -20,8 +20,8 @@
 
 ### Готовность проектов:
 - **sboxmgr:** 75% (CLI, plugin system, event system готовы)
-- **sboxagent:** 90% (MVP готов, нужен HTTP API)
-- **sbox-common:** 40% (базовые схемы готовы)
+- **sboxagent:** 90% (MVP готов, нужен Event Handler)
+- **sbox-common:** 60% (event protocols готовы, converters готовы)
 
 ## 🏗️ АРХИТЕКТУРА РАЗРАБОТКИ
 
@@ -30,10 +30,10 @@
 │                    Parallel Development                     │
 ├─────────────────────────────────────────────────────────────┤
 │  sboxmgr (Python)           │  sboxagent (Go)              │
-│  - Security Framework       │  - HTTP API                  │
-│  - CLI Integration          │  - Event Handler             │
-│  - Event Sender             │  - Process Manager           │
-│  - HTTP Client              │  - Log Parser                │
+│  - Security Framework       │  - Event Handler             │
+│  - CLI Integration          │  - Process Manager           │
+│  - Event Sender             │  - Log Parser                │
+│  - IPC Client               │  - IPC Server                │
 ├─────────────────────────────────────────────────────────────┤
 │                    sbox-common (Shared)                    │
 │  - Event Protocols          │  - API Schemas               │
@@ -46,25 +46,25 @@
 
 ### Week 1: Foundation Setup
 
-#### Day 1-2: Event Protocols (sbox-common)
+#### Day 1-2: Event Protocols (sbox-common) ✅
 **Ответственный:** sbox-common  
 **Зависимости:** Нет
 
-- [ ] Создать `protocols/events/subscription-events.json`
-- [ ] Создать `protocols/events/config-events.json`
-- [ ] Создать `protocols/events/health-events.json`
-- [ ] Создать event converters
-- [ ] Добавить event validation
+- [x] Создать `protocols/events/subscription-events.json`
+- [x] Создать `protocols/events/config-events.json`
+- [x] Создать `protocols/events/health-events.json`
+- [x] Создать event converters
+- [x] Добавить event validation
 
-#### Day 3-4: HTTP API Foundation (sboxagent)
+#### Day 3-4: IPC Foundation (sboxagent)
 **Ответственный:** sboxagent  
 **Зависимости:** sbox-common event protocols
 
-- [ ] Создать `internal/api/server.go`
-- [ ] Создать `internal/api/routes.go`
-- [ ] Создать `internal/api/handlers.go`
-- [ ] Добавить basic endpoints (health, status)
-- [ ] Добавить authentication middleware
+- [ ] Создать `internal/ipc/server.go`
+- [ ] Создать `internal/ipc/client.go`
+- [ ] Создать `internal/ipc/protocol.go`
+- [ ] Добавить JSON message handling
+- [ ] Добавить basic event processing
 
 #### Day 5-7: Security Framework (sboxmgr)
 **Ответственный:** sboxmgr  
@@ -80,10 +80,10 @@
 
 #### Day 1-2: CLI Integration (sboxmgr)
 **Ответственный:** sboxmgr  
-**Зависимости:** sboxagent HTTP API
+**Зависимости:** sboxagent IPC
 
 - [ ] Создать `src/sboxmgr/cli/commands/agent.py`
-- [ ] Создать `src/sboxmgr/cli/utils/agent_client.py`
+- [ ] Создать `src/sboxmgr/cli/utils/ipc_client.py`
 - [ ] Создать `src/sboxmgr/cli/utils/event_sender.py`
 - [ ] Добавить agent management commands
 - [ ] Добавить error handling
@@ -116,12 +116,12 @@
 - **18:00** - Integration testing
 
 ### Weekly Milestones:
-- **Week 1:** Foundation ready (event protocols, HTTP API, security framework)
+- **Week 1:** Foundation ready (event protocols, IPC, security framework)
 - **Week 2:** Integration ready (CLI commands, event handler, config sync)
 
 ### Integration Testing:
 - **Day 3:** Test event protocols between projects
-- **Day 5:** Test HTTP API with CLI client
+- **Day 5:** Test IPC communication between sboxmgr and sboxagent
 - **Day 7:** Test end-to-end integration
 
 ## 🧪 ТЕСТИРОВАНИЕ
@@ -129,11 +129,11 @@
 ### Unit Tests:
 - **sbox-common:** Event protocol validation
 - **sboxmgr:** Security framework, CLI commands
-- **sboxagent:** HTTP API, event handler
+- **sboxagent:** IPC, event handler
 
 ### Integration Tests:
 - **Event Flow:** sboxmgr → sbox-common → sboxagent
-- **CLI Flow:** sboxmgr CLI → sboxagent API
+- **IPC Flow:** sboxmgr CLI → sboxagent IPC
 - **Config Flow:** sboxmgr → sbox-common → sboxagent
 
 ### End-to-End Tests:
@@ -144,13 +144,13 @@
 ## 📊 КРИТЕРИИ ГОТОВНОСТИ
 
 ### Week 1 Criteria:
-- [ ] Event protocols работают между проектами
-- [ ] HTTP API отвечает на запросы
+- [x] Event protocols работают между проектами
+- [ ] IPC communication работает между sboxmgr и sboxagent
 - [ ] Security framework функционирует
 - [ ] Unit tests проходят
 
 ### Week 2 Criteria:
-- [ ] CLI команды управляют агентом
+- [ ] CLI команды управляют агентом через IPC
 - [ ] Event handler обрабатывает события
 - [ ] Configuration sync работает
 - [ ] Integration tests проходят
@@ -179,20 +179,32 @@
 ### Immediate (Today):
 1. ✅ Создать ветки для интеграции
 2. ✅ Обновить планы Stage 4
-3. 🔄 Начать event protocols в sbox-common
+3. ✅ Завершить event protocols в sbox-common
+4. 🔄 Начать IPC foundation в sboxagent
 
 ### This Week:
-1. Завершить event protocols
-2. Начать HTTP API в sboxagent
-3. Начать security framework в sboxmgr
+1. ✅ Завершить event protocols
+2. 🔄 Начать IPC в sboxagent
+3. 🔄 Начать security framework в sboxmgr
 
 ### Next Week:
 1. Завершить foundation
 2. Начать integration implementation
 3. Провести integration testing
 
+## 🔮 FUTURE PHASES (Optional)
+
+### Phase 2: HTTP API (Optional)
+- **Когда:** После стабильной IPC интеграции
+- **Зачем:** Remote management, external integrations
+- **Что:** HTTP REST API поверх существующего event system
+
+### Phase 3: Advanced Features
+- **Когда:** После стабильной интеграции
+- **Что:** Advanced monitoring, analytics, automation
+
 ---
 
 **Статус**: 🚀 **В РАЗРАБОТКЕ**  
-**Прогресс**: 10% (setup complete)  
-**Следующий шаг**: Начать event protocols в sbox-common 
+**Прогресс**: 25% (event protocols complete)  
+**Следующий шаг**: Начать IPC foundation в sboxagent 
