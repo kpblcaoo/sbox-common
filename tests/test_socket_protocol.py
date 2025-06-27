@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import patch, mock_open, MagicMock
 from io import BytesIO
 
-from protocols.socket.framed_json import (
+from sbox_common.protocols.socket.framed_json import (
     FramedJSONProtocol,
     SocketMessageBuilder,
     get_protocol
@@ -22,7 +22,7 @@ class TestFramedJSONProtocol:
     def test_init_with_default_schema_dir(self):
         """Test initialization with default schema directory."""
         protocol = FramedJSONProtocol()
-        assert protocol.schema_dir == Path(__file__).parent.parent / "protocols" / "socket"
+        assert protocol.schema_dir == Path(__file__).parent.parent / "src" / "sbox_common" / "protocols" / "socket"
     
     def test_init_with_custom_schema_dir(self, tmp_path):
         """Test initialization with custom schema directory."""

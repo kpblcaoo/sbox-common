@@ -6,6 +6,7 @@ and validating event schemas.
 """
 
 import json
+import logging
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
@@ -14,13 +15,22 @@ from pathlib import Path
 import jsonschema
 from jsonschema import ValidationError
 
+# Set up logging
+logger = logging.getLogger(__name__)
+
 
 class EventConverter:
     """Base class for event converters."""
     
-    def __init__(self, schema_dir: Optional[Path] = None):
+    def __init__(self, schema_dir: Optional[Union[Path, str]] = None):
         """Initialize converter with schema directory."""
-        self.schema_dir = schema_dir or Path(__file__).parent / "events"
+        if schema_dir is None:
+            # Default to the events directory where schemas are located
+            # This should match the test expectation: Path(__file__).parent.parent / "src" / "sbox_common" / "protocols" / "events"
+            schema_dir = Path(__file__).parent / "events"
+        elif isinstance(schema_dir, str):
+            schema_dir = Path(schema_dir)
+        self.schema_dir = schema_dir
         self._schemas = {}
         self._load_schemas()
     
@@ -38,6 +48,8 @@ class EventConverter:
                 with open(schema_path, 'r') as f:
                     schema_name = schema_path.stem
                     self._schemas[schema_name] = json.load(f)
+            else:
+                logger.warning(f"Schema file not found: {schema_path}")
     
     def validate_event(self, event: Dict[str, Any], schema_name: str) -> bool:
         """Validate event against schema."""

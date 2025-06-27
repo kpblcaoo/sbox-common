@@ -7,7 +7,7 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch, mock_open
 
-from protocols.converters import (
+from sbox_common.protocols.converters import (
     EventConverter,
     SubscriptionEventConverter,
     ConfigEventConverter,
@@ -22,7 +22,7 @@ class TestEventConverter:
     def test_init_with_default_schema_dir(self):
         """Test initialization with default schema directory."""
         converter = EventConverter()
-        assert converter.schema_dir == Path(__file__).parent.parent / "protocols" / "events"
+        assert converter.schema_dir == Path(__file__).parent.parent / "src" / "sbox_common" / "protocols" / "events"
     
     def test_init_with_custom_schema_dir(self, tmp_path):
         """Test initialization with custom schema directory."""

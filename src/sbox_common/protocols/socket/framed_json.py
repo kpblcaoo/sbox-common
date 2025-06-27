@@ -8,12 +8,16 @@ over Unix sockets with proper framing and validation.
 import json
 import struct
 import uuid
+import logging
 from datetime import datetime
 from typing import Any, Dict, Optional, Tuple, Union
 from pathlib import Path
 
 import jsonschema
 from jsonschema import ValidationError
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 class FramedJSONProtocol:
@@ -23,9 +27,15 @@ class FramedJSONProtocol:
     FRAME_HEADER_SIZE = 8  # 4 bytes for length + 4 bytes for version
     PROTOCOL_VERSION = 1
     
-    def __init__(self, schema_dir: Optional[Path] = None):
+    def __init__(self, schema_dir: Optional[Union[Path, str]] = None):
         """Initialize protocol with schema directory."""
-        self.schema_dir = schema_dir or Path(__file__).parent
+        if schema_dir is None:
+            # Default to the socket directory where this file is located
+            # This should match the test expectation: Path(__file__).parent.parent / "src" / "sbox_common" / "protocols" / "socket"
+            schema_dir = Path(__file__).parent
+        elif isinstance(schema_dir, str):
+            schema_dir = Path(schema_dir)
+        self.schema_dir = schema_dir
         self._load_schemas()
     
     def _load_schemas(self) -> None:
@@ -35,6 +45,7 @@ class FramedJSONProtocol:
             with open(schema_path, 'r') as f:
                 self._protocol_schema = json.load(f)
         else:
+            logger.warning(f"Schema file not found: {schema_path}")
             self._protocol_schema = None
     
     def validate_message(self, message: Dict[str, Any]) -> bool:
