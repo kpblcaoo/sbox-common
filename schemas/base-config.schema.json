@@ -1,0 +1,1 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://schemas.subbox.dev/base-config.schema.json", "version": "1.0.0", "title": "Subbox Configuration Base Schema", "description": "Base schema for all subbox client configurations", "type": "object"}

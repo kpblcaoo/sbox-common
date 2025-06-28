@@ -1,0 +1,1 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://schemas.subbox.dev/mihomo.schema.json", "version": "1.0.0", "title": "Mihomo Configuration Schema", "description": "Schema for Mihomo (Clash fork) client configuration validation", "type": "object"}

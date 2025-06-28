@@ -1,0 +1,1 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://schemas.subbox.dev/interface/sboxmgr-agent.schema.json", "version": "1.0.0", "title": "Sboxmgr-Agent Interface Protocol", "description": "JSON interface protocol for communication between sboxmgr and sboxagent via exec() calls", "type": "object"}

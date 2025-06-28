@@ -1,0 +1,1 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://schemas.subbox.dev/clash.schema.json", "version": "1.0.0", "title": "Clash Configuration Schema", "description": "Schema for Clash client configuration validation", "type": "object"}
