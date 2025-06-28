@@ -36,20 +36,20 @@ class EventConverter:
     
     def _load_schemas(self) -> None:
         """Load all event schemas from schema directory."""
-        schema_files = [
-            "subscription-events.json",
-            "config-events.json", 
-            "health-events.json"
-        ]
+        if not self.schema_dir.exists():
+            logger.warning(f"Schema directory not found: {self.schema_dir}")
+            return
         
-        for schema_file in schema_files:
-            schema_path = self.schema_dir / schema_file
-            if schema_path.exists():
+        for schema_path in self.schema_dir.glob("*.json"):
+            try:
                 with open(schema_path, 'r') as f:
                     schema_name = schema_path.stem
                     self._schemas[schema_name] = json.load(f)
-            else:
-                logger.warning(f"Schema file not found: {schema_path}")
+            except Exception as e:
+                logger.warning(f"Failed to load schema from {schema_path}: {e}")
+        
+        if not self._schemas:
+            logger.warning(f"No schemas found in directory: {self.schema_dir}")
     
     def validate_event(self, event: Dict[str, Any], schema_name: str) -> bool:
         """Validate event against schema."""
