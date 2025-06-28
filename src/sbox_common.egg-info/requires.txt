@@ -1,0 +1,8 @@
+jsonschema>=4.0.0
+
+[dev]
+pytest
+pytest-mock
+black
+ruff
+mypy

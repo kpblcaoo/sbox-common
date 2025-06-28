@@ -1,0 +1,267 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Subscription Events Protocol",
+  "description": "Event protocol for subscription management between sboxmgr and sboxagent",
+  "version": "1.0.0",
+  "type": "object",
+  "definitions": {
+    "EventBase": {
+      "type": "object",
+      "required": ["event_id", "timestamp", "source", "event_type"],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique event identifier"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Event timestamp in ISO 8601 format"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["sboxmgr", "sboxagent"],
+          "description": "Source system that generated the event"
+        },
+        "event_type": {
+          "type": "string",
+          "description": "Type of event"
+        },
+        "correlation_id": {
+          "type": "string",
+          "description": "Optional correlation ID for tracking related events"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Additional event metadata"
+        }
+      }
+    },
+    "SubscriptionData": {
+      "type": "object",
+      "required": ["subscription_id", "name", "url", "type"],
+      "properties": {
+        "subscription_id": {
+          "type": "string",
+          "description": "Unique subscription identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable subscription name"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Subscription URL"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["clash", "sing-box", "v2ray", "custom"],
+          "description": "Subscription type"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional subscription description"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional tags for categorization"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether subscription is enabled"
+        },
+        "auto_update": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to auto-update subscription"
+        },
+        "update_interval": {
+          "type": "integer",
+          "minimum": 300,
+          "default": 3600,
+          "description": "Update interval in seconds"
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "subscription.created"
+            },
+            "data": {
+              "$ref": "#/definitions/SubscriptionData"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "subscription.updated"
+            },
+            "data": {
+              "$ref": "#/definitions/SubscriptionData"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "subscription.deleted"
+            },
+            "data": {
+              "type": "object",
+              "required": ["subscription_id"],
+              "properties": {
+                "subscription_id": {
+                  "type": "string",
+                  "description": "ID of deleted subscription"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "subscription.enabled"
+            },
+            "data": {
+              "type": "object",
+              "required": ["subscription_id"],
+              "properties": {
+                "subscription_id": {
+                  "type": "string",
+                  "description": "ID of enabled subscription"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "subscription.disabled"
+            },
+            "data": {
+              "type": "object",
+              "required": ["subscription_id"],
+              "properties": {
+                "subscription_id": {
+                  "type": "string",
+                  "description": "ID of disabled subscription"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "subscription.update_started"
+            },
+            "data": {
+              "type": "object",
+              "required": ["subscription_id"],
+              "properties": {
+                "subscription_id": {
+                  "type": "string",
+                  "description": "ID of subscription being updated"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/EventBase" },
+        {
+          "type": "object",
+          "required": ["event_type", "data"],
+          "properties": {
+            "event_type": {
+              "const": "subscription.update_completed"
+            },
+            "data": {
+              "type": "object",
+              "required": ["subscription_id", "status"],
+              "properties": {
+                "subscription_id": {
+                  "type": "string",
+                  "description": "ID of updated subscription"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["success", "failed"],
+                  "description": "Update status"
+                },
+                "error": {
+                  "type": "string",
+                  "description": "Error message if status is failed"
+                },
+                "nodes_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Number of nodes in updated subscription"
+                },
+                "config_changed": {
+                  "type": "boolean",
+                  "description": "Whether configuration changed after update"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 

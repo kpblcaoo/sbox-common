@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Unix Socket Protocol v1",
+  "description": "Protocol for communication between sboxmgr and sboxagent via Unix socket",
+  "version": "1.0.0",
+  "type": "object",
+  "definitions": {
+    "MessageBase": {
+      "type": "object",
+      "required": ["id", "type", "timestamp"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique message identifier"
+        },
+        "type": {
+          "type": "string",
+          "description": "Message type"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Message timestamp in ISO 8601 format"
+        },
+        "correlation_id": {
+          "type": "string",
+          "description": "Optional correlation ID for tracking related messages"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Additional message metadata"
+        }
+      }
+    },
+    "CommandMessage": {
+      "type": "object",
+      "required": ["command", "params"],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Command name"
+        },
+        "params": {
+          "type": "object",
+          "description": "Command parameters"
+        }
+      }
+    },
+    "ResponseMessage": {
+      "type": "object",
+      "required": ["status", "request_id"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["success", "error", "partial"],
+          "description": "Response status"
+        },
+        "request_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the request this response is for"
+        },
+        "data": {
+          "type": "object",
+          "description": "Response data"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Error code"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message"
+            },
+            "details": {
+              "type": "object",
+              "description": "Additional error details"
+            }
+          }
+        }
+      }
+    },
+    "HeartbeatMessage": {
+      "type": "object",
+      "required": ["agent_id", "status"],
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Agent identifier"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["healthy", "degraded", "unhealthy"],
+          "description": "Agent health status"
+        },
+        "uptime_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Agent uptime in seconds"
+        },
+        "version": {
+          "type": "string",
+          "description": "Agent version"
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "allOf": [
+        { "$ref": "#/definitions/MessageBase" },
+        {
+          "type": "object",
+          "required": ["type", "event"],
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "type": "object",
+              "description": "Event data"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/MessageBase" },
+        {
+          "type": "object",
+          "required": ["type", "command"],
+          "properties": {
+            "type": {
+              "const": "command"
+            },
+            "command": {
+              "$ref": "#/definitions/CommandMessage"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/MessageBase" },
+        {
+          "type": "object",
+          "required": ["type", "response"],
+          "properties": {
+            "type": {
+              "const": "response"
+            },
+            "response": {
+              "$ref": "#/definitions/ResponseMessage"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        { "$ref": "#/definitions/MessageBase" },
+        {
+          "type": "object",
+          "required": ["type", "heartbeat"],
+          "properties": {
+            "type": {
+              "const": "heartbeat"
+            },
+            "heartbeat": {
+              "$ref": "#/definitions/HeartbeatMessage"
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 
