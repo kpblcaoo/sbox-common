@@ -1,0 +1,1 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://schemas.subbox.dev/xray.schema.json", "version": "1.0.0", "title": "Xray Configuration Schema", "description": "Schema for Xray client configuration validation", "type": "object"}
