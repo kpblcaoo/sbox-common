@@ -209,19 +209,19 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/definitions/ComponentHealth"
-                  },
-                  "check_duration_ms": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "description": "Health check duration in milliseconds"
-                  },
-                  "errors": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "Health check errors"
                   }
+                },
+                "check_duration_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Health check duration in milliseconds"
+                },
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Health check errors"
                 }
               }
             }
